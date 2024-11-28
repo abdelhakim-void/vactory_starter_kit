@@ -35,23 +35,30 @@
       delete toursSettings.tourDisplayCounter;
       delete toursSettings.blockMachineName;
       delete toursSettings.useHints;
-      if (!$.cookie('ugToursCounter_' + blockMachineName)) {
+      
+      const cookieName = 'ugToursCounter_' + blockMachineName;
+      
+      if (!Cookies.get(cookieName)) {
         // Initialize tour counter cookie variable if not exist.
-        $.cookie('ugToursCounter_' + blockMachineName, tourDisplayCounter);
+        Cookies.set(cookieName, tourDisplayCounter);
       }
-      if (parseInt($.cookie('ugToursCounter_' + blockMachineName)) <= tourDisplayCounter && parseInt($.cookie('ugToursCounter_' + blockMachineName)) > 0) {
+
+      const currentCounter = parseInt(Cookies.get(cookieName) || '0');
+      
+      if (currentCounter <= tourDisplayCounter && currentCounter > 0) {
         // Init intro js with specific options.
         var introjs = introJs().setOptions(toursSettings).start();
         introjs.onbeforeexit(function () {
-          if (!!$.cookie('ugToursCounter_' + blockMachineName)) {
-            $.cookie('ugToursCounter_' + blockMachineName, parseInt($.cookie('ugToursCounter_' + blockMachineName)) - 1);
+          if (Cookies.get(cookieName)) {
+            Cookies.set(cookieName, currentCounter - 1);
           }
         });
         if (startWithStep > 0) {
           introjs.goToStepNumber(startWithStep);
         }
       }
-      if (useHints && parseInt($.cookie('ugToursCounter_' + blockMachineName)) === 0) {
+
+      if (useHints && currentCounter === 0) {
         // Manage Hints cases.
         toursSettings.steps = $.grep(toursSettings.steps, function (step) {
           return step.element !== undefined;
